@@ -693,7 +693,9 @@ async function loadChannels() {
     renderChannelsList();
 
     if (!currentChannelId && channels.length > 0) {
-      selectChannel(channels[0].id);
+      // Prioritize the first TEXT channel on page load so voice is not auto-joined
+      const initialCh = channels.find((c) => c.type === 'TEXT') || channels[0];
+      selectChannel(initialCh.id, true);
     }
   } catch (err) {
     console.error('Ошибка загрузки каналов:', err);
@@ -724,7 +726,7 @@ function renderChannelsList() {
         </div>
         <span class="text-[9px] text-zinc-600 font-mono">VOICE</span>
       `;
-      btn.onclick = () => selectChannel(ch.id);
+      btn.onclick = () => selectChannel(ch.id, false);
       voiceList.appendChild(btn);
     } else {
       btn.innerHTML = `
@@ -741,7 +743,7 @@ function renderChannelsList() {
   lucide.createIcons();
 }
 
-async function selectChannel(channelId) {
+async function selectChannel(channelId, isInitialLoad = false) {
   if (currentChannelId && socket && currentChannelId !== channelId) {
     socket.emit('leave-channel', currentChannelId);
   }
@@ -764,7 +766,8 @@ async function selectChannel(channelId) {
     document.getElementById('chat-content').classList.add('hidden');
     document.getElementById('voice-center-stage').classList.remove('hidden');
     
-    if (!inCall || activeCallChannelId !== ch.id) {
+    // Only join call if user intentionally clicked (not cold reload)
+    if (!isInitialLoad && (!inCall || activeCallChannelId !== ch.id)) {
       await joinCall(ch.id);
     }
   } else {
