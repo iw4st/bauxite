@@ -249,7 +249,7 @@
         </div>
 
         <div class="flex items-center gap-1 text-zinc-400">
-          <button onclick="logout()" class="p-1.5 rounded-lg hover:bg-rose-500/10 hover:text-rose-400 transition" title="Выход">
+          <button onclick="logout()" class="p-1.5 rounded-lg hover:bg-rose-500/10 hover:text-rose-400 transition cursor-pointer" title="Выход">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
           </button>
         </div>
@@ -277,7 +277,7 @@
 
         <div class="flex items-center gap-2">
           <!-- Toggle Right Info Panel -->
-          <button onclick="toggleVoicePanel()" class="p-1.5 rounded-lg bg-metal-850 hover:bg-metal-800 border border-metal-700 text-zinc-400 hover:text-zinc-200 transition" title="Инфо-панель">
+          <button onclick="toggleVoicePanel()" class="p-1.5 rounded-lg bg-metal-850 hover:bg-metal-800 border border-metal-700 text-zinc-400 hover:text-zinc-200 transition cursor-pointer" title="Инфо-панель">
             <i data-lucide="panel-right" class="w-4 h-4"></i>
           </button>
         </div>
@@ -349,14 +349,14 @@
           <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr min-h-[300px]" id="center-peers-grid">
             
             <!-- Local User Card -->
-            <div id="center-local-peer-card" class="relative bg-metal-900 border-2 border-metal-700/80 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 transition-all duration-200 shadow-lg group min-h-[200px]">
-              <video id="center-local-video" autoplay muted playsinline class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl"></video>
+            <div id="center-local-peer-card" class="relative bg-metal-900 border-2 border-metal-700/80 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 transition-all duration-200 shadow-lg group min-h-[220px]">
+              <video id="center-local-video" autoplay muted playsinline class="hidden absolute inset-0 w-full h-full object-contain bg-black rounded-2xl"></video>
               
               <div id="center-local-avatar" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-bauxite-500 to-orange-700 flex items-center justify-center text-3xl font-bold text-white shadow-bauxite-glow font-mono transition-all duration-200">
                 <span id="center-local-avatar-letter">S</span>
               </div>
 
-              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-metal-950/85 backdrop-blur-md text-xs font-mono border border-metal-800">
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-metal-950/85 backdrop-blur-md text-xs font-mono border border-metal-800 z-10">
                 <span id="center-local-username" class="text-zinc-200 font-bold truncate">Вы (Host)</span>
                 <span class="flex items-center gap-1 text-emerald-400">
                   <i data-lucide="mic" id="center-local-mic-icon" class="w-3.5 h-3.5"></i>
@@ -540,10 +540,13 @@ let isRegistering = false;
 let selectedNewChannelType = 'TEXT';
 
 // WebRTC State
-let iceServers = [];
+let iceServers = [
+  { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+  { urls: ['stun:stun2.l.google.com:19302', 'stun:stun3.l.google.com:19302'] }
+];
 let localStream = null;
 let screenStream = null;
-let peerConnections = {};
+let peerConnections = {}; // remoteSocketId -> { pc, username }
 let inCall = false;
 let isMicMuted = false;
 let isVideoEnabled = false;
@@ -757,17 +760,14 @@ async function selectChannel(channelId) {
   renderChannelsList();
 
   if (ch.type === 'VOICE') {
-    // ── SWITCH CENTER TO FULL VOICE & VIDEO ARENA ──────────────
     document.getElementById('chat-channel-desc').textContent = 'Голосовая WebRTC комната прямого эфира';
     document.getElementById('chat-content').classList.add('hidden');
     document.getElementById('voice-center-stage').classList.remove('hidden');
     
-    // Auto-join call if not yet connected to this voice channel
     if (!inCall || activeCallChannelId !== ch.id) {
       await joinCall(ch.id);
     }
   } else {
-    // ── SWITCH CENTER TO TEXT CHAT STREAM ──────────────────────
     document.getElementById('chat-channel-desc').textContent = 'Поток текстовых сообщений и файлов';
     document.getElementById('voice-center-stage').classList.add('hidden');
     document.getElementById('chat-content').classList.remove('hidden');
@@ -1108,12 +1108,10 @@ function connectSocket() {
     if (currentChannelId) socket.emit('join-channel', currentChannelId);
   });
 
-  // Real-time online users
   socket.on('online-users', (users) => {
     renderOnlineUsers(users);
   });
 
-  // Real-time channel creation
   socket.on('channel-created', (newChannel) => {
     if (!channels.some(c => c.id === newChannel.id)) {
       channels.push(newChannel);
@@ -1153,7 +1151,7 @@ function connectSocket() {
 
   // WebRTC Signals
   socket.on('ice-servers', (servers) => {
-    iceServers = servers;
+    if (servers && servers.length) iceServers = servers;
   });
 
   socket.on('room-peers', async ({ peers }) => {
@@ -1188,7 +1186,9 @@ function connectSocket() {
   socket.on('ice-candidate', async ({ candidate, fromSocketId }) => {
     const peer = peerConnections[fromSocketId];
     if (peer?.pc && candidate) {
-      await peer.pc.addIceCandidate(new RTCIceCandidate(candidate));
+      try {
+        await peer.pc.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (e) {}
     }
   });
 }
@@ -1214,7 +1214,7 @@ async function joinCall(targetChannelId) {
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
   } catch (err) {
-    console.warn('Microphone permission not granted, using empty stream:', err);
+    console.warn('Microphone permission not granted, creating dummy audio track:', err);
     localStream = new MediaStream();
   }
 
@@ -1234,7 +1234,6 @@ function leaveCall() {
   }
   cleanupCall();
 
-  // If we were on a voice channel, switch back to the first text channel
   const textCh = channels.find(c => c.type === 'TEXT');
   if (textCh) {
     selectChannel(textCh.id);
@@ -1320,11 +1319,10 @@ async function toggleVideo() {
     document.getElementById('center-local-video').classList.add('hidden');
     document.getElementById('center-local-avatar').classList.remove('hidden');
 
-    Object.values(peerConnections).forEach(({ pc }) => {
-      pc.getSenders().forEach((s) => {
-        if (s.track?.kind === 'video') pc.removeTrack(s);
-      });
-    });
+    for (const { pc } of Object.values(peerConnections)) {
+      const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+      if (sender) pc.removeTrack(sender);
+    }
 
     isVideoEnabled = false;
     document.getElementById('center-btn-video').className = 'p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer';
@@ -1340,13 +1338,20 @@ async function toggleVideo() {
       localVid.classList.remove('hidden');
       document.getElementById('center-local-avatar').classList.add('hidden');
 
-      Object.values(peerConnections).forEach(({ pc }) => {
-        pc.addTrack(videoTrack, localStream);
-      });
+      for (const { pc } of Object.values(peerConnections)) {
+        const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+        if (sender) {
+          await sender.replaceTrack(videoTrack);
+        } else {
+          pc.addTrack(videoTrack, localStream);
+        }
+      }
 
       isVideoEnabled = true;
       document.getElementById('center-btn-video').className = 'p-3.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition cursor-pointer';
-    } catch (err) {}
+    } catch (err) {
+      console.error('Camera toggle error:', err);
+    }
   }
   lucide.createIcons();
 }
@@ -1361,24 +1366,26 @@ async function shareScreen() {
     localVid.classList.remove('hidden');
     document.getElementById('center-local-avatar').classList.add('hidden');
 
-    Object.values(peerConnections).forEach(({ pc }) => {
-      const videoSender = pc.getSenders().find((s) => s.track?.kind === 'video');
-      if (videoSender) {
-        videoSender.replaceTrack(videoTrack);
+    for (const { pc } of Object.values(peerConnections)) {
+      const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+      if (sender) {
+        await sender.replaceTrack(videoTrack);
       } else {
         pc.addTrack(videoTrack, screenStream);
       }
-    });
+    }
 
     document.getElementById('center-btn-share-screen').classList.add('hidden');
     document.getElementById('center-btn-stop-screen').classList.remove('hidden');
 
     videoTrack.onended = () => stopScreenShare();
-  } catch (err) {}
+  } catch (err) {
+    console.error('Screen share error:', err);
+  }
   lucide.createIcons();
 }
 
-function stopScreenShare() {
+async function stopScreenShare() {
   if (screenStream) {
     screenStream.getTracks().forEach((t) => t.stop());
     screenStream = null;
@@ -1388,10 +1395,19 @@ function stopScreenShare() {
   document.getElementById('center-btn-stop-screen').classList.add('hidden');
 
   if (isVideoEnabled && localStream?.getVideoTracks().length > 0) {
+    const camTrack = localStream.getVideoTracks()[0];
     document.getElementById('center-local-video').srcObject = localStream;
+    for (const { pc } of Object.values(peerConnections)) {
+      const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+      if (sender) await sender.replaceTrack(camTrack);
+    }
   } else {
     document.getElementById('center-local-video').classList.add('hidden');
     document.getElementById('center-local-avatar').classList.remove('hidden');
+    for (const { pc } of Object.values(peerConnections)) {
+      const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+      if (sender) pc.removeTrack(sender);
+    }
   }
   lucide.createIcons();
 }
@@ -1405,12 +1421,25 @@ async function createPeerConnection(remoteSocketId, username, createOffer) {
   const pc = new RTCPeerConnection({ iceServers });
   peerConnections[remoteSocketId] = { pc, username };
 
+  // Add existing local tracks to peer connection
   if (localStream) {
     localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));
   }
   if (screenStream) {
     screenStream.getTracks().forEach((t) => pc.addTrack(t, screenStream));
   }
+
+  // Renegotiation handler (e.g. when camera/screen is added later)
+  pc.onnegotiationneeded = async () => {
+    try {
+      if (pc.signalingState !== 'stable') return;
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.emit('offer', { targetSocketId: remoteSocketId, sdp: offer });
+    } catch (err) {
+      console.warn('Renegotiation error:', err);
+    }
+  };
 
   pc.onicecandidate = (e) => {
     if (e.candidate && socket) {
@@ -1426,18 +1455,19 @@ async function createPeerConnection(remoteSocketId, username, createOffer) {
     if (!card) {
       card = document.createElement('div');
       card.id = `center-peer-${remoteSocketId}`;
-      card.className = 'relative bg-metal-900 border-2 border-metal-700/80 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 transition-all duration-200 shadow-lg min-h-[200px]';
+      card.className = 'relative bg-metal-900 border-2 border-metal-700/80 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 transition-all duration-200 shadow-lg min-h-[220px]';
 
       card.innerHTML = `
-        <video autoplay playsinline class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl"></video>
+        <video autoplay playsinline class="hidden absolute inset-0 w-full h-full object-contain bg-black rounded-2xl"></video>
+        <audio autoplay></audio>
         
         <div class="peer-avatar w-20 h-20 rounded-2xl bg-gradient-to-tr from-metal-800 to-metal-700 flex items-center justify-center text-3xl font-bold text-bauxite-400 font-mono border border-metal-700 shadow-md">
           ${(username || 'U').charAt(0).toUpperCase()}
         </div>
 
-        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-metal-950/85 backdrop-blur-md text-xs font-mono border border-metal-800">
+        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-metal-950/85 backdrop-blur-md text-xs font-mono border border-metal-800 z-10">
           <span class="text-zinc-200 font-bold truncate">${escapeHtml(username)}</span>
-          <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400 peer-mic-icon"></i>
         </div>
       `;
       document.getElementById('center-peers-grid').appendChild(card);
@@ -1445,11 +1475,33 @@ async function createPeerConnection(remoteSocketId, username, createOffer) {
     }
 
     const video = card.querySelector('video');
+    const audio = card.querySelector('audio');
     const avatar = card.querySelector('.peer-avatar');
-    if (e.track.kind === 'video') {
-      video.srcObject = e.streams[0];
+
+    const stream = e.streams[0] || new MediaStream([e.track]);
+
+    if (e.track.kind === 'audio') {
+      audio.srcObject = stream;
+      audio.play().catch((e) => console.log('Audio autoplay:', e));
+      setupRemoteAudioAnalyser(remoteSocketId, stream);
+    } else if (e.track.kind === 'video') {
+      video.srcObject = stream;
       video.classList.remove('hidden');
       if (avatar) avatar.classList.add('hidden');
+      video.play().catch((e) => console.log('Video autoplay:', e));
+
+      e.track.onended = () => {
+        video.classList.add('hidden');
+        if (avatar) avatar.classList.remove('hidden');
+      };
+      e.track.onmute = () => {
+        video.classList.add('hidden');
+        if (avatar) avatar.classList.remove('hidden');
+      };
+      e.track.onunmute = () => {
+        video.classList.remove('hidden');
+        if (avatar) avatar.classList.add('hidden');
+      };
     }
   };
 
@@ -1460,9 +1512,13 @@ async function createPeerConnection(remoteSocketId, username, createOffer) {
   };
 
   if (createOffer) {
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit('offer', { targetSocketId: remoteSocketId, sdp: offer });
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.emit('offer', { targetSocketId: remoteSocketId, sdp: offer });
+    } catch (e) {
+      console.warn('Create offer error:', e);
+    }
   }
 
   return pc;
@@ -1507,7 +1563,7 @@ function setupLocalAudioAnalyser() {
       const avatarBox = document.getElementById('center-local-avatar');
       const cardBox = document.getElementById('center-local-peer-card');
       if (avatarBox && cardBox) {
-        if (average > 18) {
+        if (average > 16) {
           avatarBox.classList.add('ring-4', 'ring-emerald-400', 'shadow-speaking-glow');
           cardBox.classList.add('border-emerald-500');
         } else {
@@ -1517,6 +1573,42 @@ function setupLocalAudioAnalyser() {
       }
     };
   } catch (err) {}
+}
+
+function setupRemoteAudioAnalyser(remoteSocketId, stream) {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+    const microphone = audioCtx.createMediaStreamSource(stream);
+    const proc = audioCtx.createScriptProcessor(2048, 1, 1);
+
+    analyser.smoothingTimeConstant = 0.8;
+    analyser.fftSize = 1024;
+
+    microphone.connect(analyser);
+    analyser.connect(proc);
+    proc.connect(audioCtx.destination);
+
+    proc.onaudioprocess = () => {
+      const array = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(array);
+      let values = 0;
+      for (let i = 0; i < array.length; i++) values += array[i];
+      const average = values / array.length;
+
+      const card = document.getElementById(`center-peer-${remoteSocketId}`);
+      if (card) {
+        const avatar = card.querySelector('.peer-avatar');
+        if (average > 14) {
+          card.classList.add('border-emerald-500', 'shadow-speaking-glow');
+          if (avatar) avatar.classList.add('ring-4', 'ring-emerald-400');
+        } else {
+          card.classList.remove('border-emerald-500', 'shadow-speaking-glow');
+          if (avatar) avatar.classList.remove('ring-4', 'ring-emerald-400');
+        }
+      }
+    };
+  } catch (e) {}
 }
 </script>
 
