@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Models ─────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  online       Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  messages         Message[]
+  reactions        Reaction[]
+  channelMembers   ChannelMember[]
+
+  @@map("users")
+}
+
+enum ChannelType {
+  DM
+  TEXT
+  VOICE
+}
+
+model Channel {
+  id        String      @id @default(uuid())
+  name      String
+  type      ChannelType @default(TEXT)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  members  ChannelMember[]
+  messages Message[]
+
+  @@map("channels")
+}
+
+model ChannelMember {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  channelId String   @map("channel_id")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelId])
+  @@index([channelId])
+  @@map("channel_members")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String   @map("user_id")
+  channelId String   @map("channel_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel   Channel    @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  reactions Reaction[]
+
+  @@index([channelId, createdAt])
+  @@map("messages")
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  emoji     String
+  userId    String   @map("user_id")
+  messageId String   @map("message_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId, emoji])
+  @@index([messageId])
+  @@map("reactions")
+}
