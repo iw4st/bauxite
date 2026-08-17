@@ -2,6 +2,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Install OpenSSL for Prisma engine in Alpine
+RUN apk add --no-cache openssl libc6-compat
+
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
@@ -18,6 +21,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install OpenSSL for Prisma runtime in Alpine
+RUN apk add --no-cache openssl libc6-compat
+
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
@@ -28,4 +34,4 @@ COPY public ./public/
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/index.js"]
+CMD ["node", "dist/index.js"]
