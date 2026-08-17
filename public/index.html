@@ -46,7 +46,7 @@
           },
           boxShadow: {
             'bauxite-glow': '0 0 20px -3px rgba(224, 90, 71, 0.4)',
-            'speaking-glow': '0 0 12px 1px rgba(34, 197, 94, 0.7)',
+            'speaking-glow': '0 0 16px 2px rgba(34, 197, 94, 0.8)',
             'glass-inset': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.05)',
           }
         }
@@ -66,7 +66,6 @@
     ::-webkit-scrollbar-thumb { background: #282836; border-radius: 2px; }
     ::-webkit-scrollbar-thumb:hover { background: #3a3a4c; }
 
-    /* Industrial grid subtle pattern */
     .bg-grid-pattern {
       background-image: radial-gradient(rgba(224, 90, 71, 0.08) 1px, transparent 1px);
       background-size: 24px 24px;
@@ -87,7 +86,6 @@
 <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-metal-950/95 backdrop-blur-2xl bg-grid-pattern">
   <div class="relative w-full max-w-md p-8 bg-metal-900/90 border border-metal-700/70 rounded-2xl shadow-2xl backdrop-blur-2xl shadow-glass-inset">
     
-    <!-- Brand Header -->
     <div class="flex items-center gap-3.5 mb-6 pb-5 border-b border-metal-800">
       <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-bauxite-500 via-orange-600 to-amber-700 flex items-center justify-center shadow-bauxite-glow text-white border border-bauxite-400/30">
         <i data-lucide="gem" class="w-6 h-6"></i>
@@ -153,7 +151,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
-<!--  MAIN APPLICATION INTERFACE (3-COLUMN INDUSTRIAL LAYOUT)         -->
+<!--  MAIN APPLICATION INTERFACE                                     -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="app-screen" class="hidden flex-1 h-screen overflow-hidden flex flex-col bg-metal-950">
 
@@ -165,7 +163,7 @@
         <span class="font-bold text-zinc-300 tracking-wider">NODE // EU-CENTRAL</span>
       </div>
       <span class="text-metal-700">|</span>
-      <span id="header-status-text" class="text-zinc-500">Supabase Pooler 6543 Connected</span>
+      <span id="header-status-text" class="text-zinc-500">Supabase Connected</span>
     </div>
     
     <div class="flex items-center gap-4">
@@ -179,7 +177,7 @@
   <!-- 3-Column Core Workspace -->
   <div class="flex-1 flex overflow-hidden">
 
-    <!-- ── COLUMN 1: Channels & Workspace Navigator (Leftmost) ── -->
+    <!-- ── COLUMN 1: Channels Navigator (Left) ────────────────── -->
     <aside class="w-64 bg-metal-900/90 border-r border-metal-800/80 flex flex-col select-none">
       
       <!-- Brand & Space Header -->
@@ -233,7 +231,7 @@
 
       </div>
 
-      <!-- User Identity Dock (Bottom of Left Column) -->
+      <!-- User Identity Dock (Bottom Left) -->
       <div class="p-3 border-t border-metal-800/80 bg-metal-850/70 flex items-center justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="relative">
@@ -259,10 +257,10 @@
     </aside>
 
 
-    <!-- ── COLUMN 2: Main Stream Chat (Center) ────────────────── -->
+    <!-- ── COLUMN 2: Main Center Stage (Center) ───────────────── -->
     <main class="flex-1 flex flex-col bg-metal-950 relative min-w-0">
       
-      <!-- Chat Header -->
+      <!-- Top Center Header -->
       <header class="h-14 border-b border-metal-800/80 px-5 flex items-center justify-between glass-surface z-10">
         <div class="flex items-center gap-3 min-w-0">
           <div class="w-7 h-7 rounded-lg bg-metal-850 border border-metal-700 flex items-center justify-center text-bauxite-400 font-mono text-xs" id="header-channel-icon">
@@ -278,24 +276,14 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button id="btn-join-channel" onclick="joinChannel()" class="hidden text-xs bg-bauxite-500/10 text-bauxite-400 border border-bauxite-500/30 hover:bg-bauxite-500/20 px-3 py-1 rounded-lg transition font-mono">
-            Вступить в канал
-          </button>
-
-          <!-- Quick Call Trigger -->
-          <button id="btn-quick-voice-toggle" onclick="quickJoinVoiceFromChat()" class="text-xs bg-metal-850 hover:bg-metal-800 border border-metal-700 text-zinc-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 font-mono cursor-pointer">
-            <i data-lucide="radio" class="w-3.5 h-3.5 text-bauxite-400"></i>
-            <span id="quick-voice-btn-text" class="hidden sm:inline">Подключить Voice</span>
-          </button>
-
-          <!-- Toggle Right Panel -->
+          <!-- Toggle Right Info Panel -->
           <button onclick="toggleVoicePanel()" class="p-1.5 rounded-lg bg-metal-850 hover:bg-metal-800 border border-metal-700 text-zinc-400 hover:text-zinc-200 transition" title="Инфо-панель">
             <i data-lucide="panel-right" class="w-4 h-4"></i>
           </button>
         </div>
       </header>
 
-      <!-- Empty Chat Placeholder -->
+      <!-- Empty / Standby Placeholder -->
       <div id="chat-placeholder" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-grid-pattern">
         <div class="w-12 h-12 rounded-xl bg-bauxite-500/10 border border-bauxite-500/30 flex items-center justify-center text-bauxite-400 mb-3 shadow-bauxite-glow">
           <i data-lucide="terminal" class="w-6 h-6"></i>
@@ -304,19 +292,18 @@
         <p class="text-xs text-zinc-500 max-w-xs font-mono">Выберите канал в левой колонке для передачи данных</p>
       </div>
 
-      <!-- Active Message History -->
+      <!-- ── MODE A: TEXT CHAT STREAM ──────────────────────────── -->
       <div id="chat-content" class="hidden flex-1 flex flex-col min-h-0">
         
-        <div id="chat-messages" class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+        <div id="chat-messages" class="flex-1 overflow-y-auto px-5 py-4 space-y-1">
           <!-- Rendered messages -->
         </div>
 
-        <!-- Typing status -->
         <div id="typing-indicator" class="h-4 px-5 text-[10px] text-zinc-500 italic flex items-center font-mono">
           <!-- Typing user banner -->
         </div>
 
-        <!-- Input Bar -->
+        <!-- Text Input Bar -->
         <div class="p-3 border-t border-metal-800/80 glass-surface">
           <div class="bg-metal-900 border border-metal-700 rounded-xl p-1.5 focus-within:border-bauxite-500/70 focus-within:ring-1 focus-within:ring-bauxite-500/20 transition-all flex items-center gap-2">
             
@@ -351,171 +338,137 @@
         </div>
 
       </div>
+
+      <!-- ── MODE B: FULL CENTER VOICE & VIDEO STAGE ────────────── -->
+      <div id="voice-center-stage" class="hidden flex-1 flex flex-col min-h-0 bg-metal-950 relative">
+        
+        <!-- Center Stage Visual Grid Area -->
+        <div class="flex-1 p-6 flex flex-col overflow-y-auto">
+          
+          <!-- Call Participants Grid (Center Arena) -->
+          <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr min-h-[300px]" id="center-peers-grid">
+            
+            <!-- Local User Card -->
+            <div id="center-local-peer-card" class="relative bg-metal-900 border-2 border-metal-700/80 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 transition-all duration-200 shadow-lg group min-h-[200px]">
+              <video id="center-local-video" autoplay muted playsinline class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl"></video>
+              
+              <div id="center-local-avatar" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-bauxite-500 to-orange-700 flex items-center justify-center text-3xl font-bold text-white shadow-bauxite-glow font-mono transition-all duration-200">
+                <span id="center-local-avatar-letter">S</span>
+              </div>
+
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-metal-950/85 backdrop-blur-md text-xs font-mono border border-metal-800">
+                <span id="center-local-username" class="text-zinc-200 font-bold truncate">Вы (Host)</span>
+                <span class="flex items-center gap-1 text-emerald-400">
+                  <i data-lucide="mic" id="center-local-mic-icon" class="w-3.5 h-3.5"></i>
+                </span>
+              </div>
+            </div>
+
+            <!-- Remote Peer Cards appended here by JS -->
+
+          </div>
+
+        </div>
+
+        <!-- Floating Call Control Dock (Bottom Center) -->
+        <div class="p-4 flex items-center justify-center z-20">
+          <div class="glass-surface border border-metal-700/80 rounded-2xl p-2 shadow-2xl flex items-center gap-3">
+            
+            <button id="center-btn-mic" onclick="toggleMic()" class="p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer" title="Микрофон">
+              <i data-lucide="mic" id="center-icon-mic" class="w-5 h-5"></i>
+            </button>
+
+            <button id="center-btn-video" onclick="toggleVideo()" class="p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer" title="Камера">
+              <i data-lucide="video" id="center-icon-video" class="w-5 h-5"></i>
+            </button>
+
+            <button id="center-btn-share-screen" onclick="shareScreen()" class="p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-bauxite-400 border border-metal-700 transition cursor-pointer" title="Экран">
+              <i data-lucide="screen-share" class="w-5 h-5"></i>
+            </button>
+
+            <button id="center-btn-stop-screen" onclick="stopScreenShare()" class="hidden p-3.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Стоп Экран">
+              <i data-lucide="screen-share-off" class="w-5 h-5"></i>
+            </button>
+
+            <div class="w-[1px] h-8 bg-metal-750 mx-1"></div>
+
+            <button onclick="leaveCall()" class="px-5 py-3.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono font-bold text-xs shadow-lg transition cursor-pointer flex items-center gap-2" title="Отключиться">
+              <i data-lucide="phone-off" class="w-4 h-4"></i>
+              <span>Отключиться</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
     </main>
 
 
-    <!-- ── COLUMN 3: Telemetry & WebRTC Stage (Right) ──────────── -->
+    <!-- ── COLUMN 3: Telemetry & Online Members (Right) ───────── -->
     <aside id="voice-stage-panel" class="w-72 lg:w-80 bg-metal-900/90 border-l border-metal-800/80 flex flex-col select-none transition-all duration-300">
       
       <!-- Right Header -->
       <div class="h-14 border-b border-metal-800/80 px-4 flex items-center justify-between bg-metal-900/40">
         <div class="flex items-center gap-2">
-          <span id="call-ping-dot" class="w-2 h-2 rounded-full bg-zinc-500 inline-block"></span>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-300 font-mono">Stage & Mesh</h3>
+          <span id="call-ping-dot" class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-300 font-mono">СЕТЬ & УЧАСТНИКИ</h3>
         </div>
-        <span id="call-status-badge" class="text-[9px] font-mono px-2 py-0.5 rounded bg-metal-850 text-zinc-400 border border-metal-700">STANDBY</span>
+        <span id="online-count-badge" class="text-[9px] font-mono px-2 py-0.5 rounded bg-metal-850 text-emerald-400 border border-metal-700 font-bold">1 ONLINE</span>
       </div>
 
       <!-- Dynamic Content Area -->
-      <div class="flex-1 flex flex-col p-3.5 overflow-y-auto space-y-3.5 min-h-0">
+      <div class="flex-1 flex flex-col p-3.5 overflow-y-auto space-y-4 min-h-0">
         
-        <!-- State A: Standby (Telemetry & Community List) -->
-        <div id="voice-idle-state" class="flex-1 flex flex-col space-y-3.5">
+        <!-- Node Diagnostics Card -->
+        <div class="p-3 rounded-xl bg-metal-850 border border-metal-700/80 space-y-2 text-xs font-mono">
+          <div class="flex items-center justify-between text-zinc-400 pb-1.5 border-b border-metal-800">
+            <span class="flex items-center gap-1.5 text-[10px] text-zinc-500 uppercase tracking-wider font-bold">
+              <i data-lucide="activity" class="w-3 h-3 text-bauxite-400"></i> Телеметрия ноды
+            </span>
+            <span class="text-[10px] text-emerald-400">LIVE MESH</span>
+          </div>
           
-          <!-- Node Diagnostics Card -->
-          <div class="p-3 rounded-xl bg-metal-850 border border-metal-700/80 space-y-2 text-xs font-mono">
-            <div class="flex items-center justify-between text-zinc-400 pb-1.5 border-b border-metal-800">
-              <span class="flex items-center gap-1.5 text-[10px] text-zinc-500 uppercase tracking-wider font-bold">
-                <i data-lucide="activity" class="w-3 h-3 text-bauxite-400"></i> Телеметрия сети
-              </span>
-              <span class="text-[10px] text-emerald-400">STABLE</span>
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+            <div>
+              <span class="text-zinc-500 block text-[10px]">RTT Задержка:</span>
+              <span class="font-bold text-zinc-200">12 ms</span>
             </div>
-            
-            <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
-              <div>
-                <span class="text-zinc-500 block text-[10px]">RTT Задержка:</span>
-                <span class="font-bold text-zinc-200">14 ms</span>
-              </div>
-              <div>
-                <span class="text-zinc-500 block text-[10px]">Mesh Шифрование:</span>
-                <span class="font-bold text-zinc-200">DTLS / SRTP</span>
-              </div>
-              <div>
-                <span class="text-zinc-500 block text-[10px]">STUN / TURN:</span>
-                <span class="font-bold text-emerald-400">Metered.ca</span>
-              </div>
-              <div>
-                <span class="text-zinc-500 block text-[10px]">Bitrate:</span>
-                <span class="font-bold text-zinc-200">128 kbps Opus</span>
-              </div>
+            <div>
+              <span class="text-zinc-500 block text-[10px]">Шифрование:</span>
+              <span class="font-bold text-zinc-200">DTLS / SRTP</span>
+            </div>
+            <div>
+              <span class="text-zinc-500 block text-[10px]">Signaling:</span>
+              <span class="font-bold text-emerald-400">Socket.io v4</span>
+            </div>
+            <div>
+              <span class="text-zinc-500 block text-[10px]">Audio Codec:</span>
+              <span class="font-bold text-zinc-200">Opus 48kHz</span>
             </div>
           </div>
-
-          <!-- Quick Connect Action -->
-          <button id="btn-join-call" onclick="joinCall()" 
-            class="w-full bg-gradient-to-r from-bauxite-500 to-orange-600 hover:from-bauxite-600 hover:to-orange-700 text-white text-xs font-semibold py-2.5 px-3 rounded-xl shadow-bauxite-glow flex items-center justify-center gap-2 transition cursor-pointer font-mono uppercase tracking-wider">
-            <i data-lucide="radio" class="w-3.5 h-3.5"></i>
-            <span>Войти в голосовой эфир</span>
-          </button>
-
-          <!-- Online Network Members Section -->
-          <div class="space-y-2 pt-1">
-            <div class="flex items-center justify-between text-[10px] font-bold text-zinc-500 uppercase font-mono px-1">
-              <span>Участники в сети</span>
-              <span class="text-bauxite-400 font-mono">LIVE</span>
-            </div>
-
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between p-2 rounded-lg bg-metal-850/60 border border-metal-800 text-xs">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span class="font-mono text-zinc-200 font-medium" id="side-current-user">septave</span>
-                  <span class="text-[9px] px-1 bg-bauxite-500/20 text-bauxite-400 rounded font-mono">HOST</span>
-                </div>
-                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-zinc-500"></i>
-              </div>
-
-              <div class="flex items-center justify-between p-2 rounded-lg bg-metal-850/30 border border-metal-800 text-xs text-zinc-400">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400/80"></span>
-                  <span class="font-mono text-zinc-400">bauxite-mesh-bot</span>
-                  <span class="text-[9px] px-1 bg-metal-800 text-zinc-500 rounded font-mono">BOT</span>
-                </div>
-                <i data-lucide="cpu" class="w-3.5 h-3.5 text-zinc-600"></i>
-              </div>
-            </div>
-          </div>
-
         </div>
 
-        <!-- State B: Active Call (Video / Audio Grid) -->
-        <div id="voice-active-state" class="hidden flex-1 flex flex-col space-y-3">
-          
-          <!-- Call Header / Disconnect Banner -->
-          <div class="p-2.5 rounded-xl bg-metal-850 border border-metal-700 flex items-center justify-between">
-            <div class="flex items-center gap-2 truncate">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span id="call-room-name" class="text-xs font-bold text-zinc-200 font-mono truncate">#voice-main</span>
-            </div>
-            <button onclick="leaveCall()" class="px-2 py-1 rounded bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[10px] font-mono font-bold transition cursor-pointer flex items-center gap-1">
-              <i data-lucide="phone-off" class="w-3 h-3"></i>
-              <span>Выйти</span>
-            </button>
+        <!-- Real-time Online Network Members List -->
+        <div class="space-y-2 pt-1 flex-1 flex flex-col">
+          <div class="flex items-center justify-between text-[10px] font-bold text-zinc-500 uppercase font-mono px-1">
+            <span>Участники в сети</span>
+            <span class="text-bauxite-400 font-mono" id="online-section-label">СИНХРОНИЗИРОВАНО</span>
           </div>
 
-          <!-- Peer video/avatar grid -->
-          <div class="flex-1 grid grid-cols-1 gap-2.5 min-h-[160px]" id="peers-container">
-            
-            <!-- Local User Tile -->
-            <div id="local-peer-card" class="relative bg-metal-850 border border-metal-700 rounded-xl overflow-hidden flex flex-col items-center justify-center p-3 transition min-h-[140px]">
-              <video id="local-video" autoplay muted playsinline class="hidden absolute inset-0 w-full h-full object-cover rounded-xl"></video>
-              
-              <div id="local-avatar-box" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-bauxite-500 to-orange-700 flex items-center justify-center text-lg font-bold text-white shadow-md font-mono">
-                <span id="local-avatar-letter">S</span>
-              </div>
-
-              <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2 py-0.5 rounded-md bg-metal-950/80 backdrop-blur-md text-[10px] font-mono border border-metal-800">
-                <span id="local-username-label" class="text-zinc-300 truncate">Вы</span>
-                <i data-lucide="mic" id="local-mic-icon" class="w-3 h-3 text-emerald-400"></i>
-              </div>
-            </div>
-
+          <div class="space-y-1.5 flex-1 overflow-y-auto" id="online-users-list">
+            <!-- Dynamic online users rendered via JS -->
           </div>
-
-          <!-- Room Status Banner -->
-          <div class="p-2 rounded-lg bg-metal-850 border border-metal-700/80 flex items-center justify-between text-xs font-mono">
-            <span class="text-[11px] text-zinc-400">Подключение: WebRTC Mesh</span>
-            <span class="text-[10px] text-emerald-400 font-bold" id="call-participants-count">1 пир</span>
-          </div>
-
         </div>
 
       </div>
 
-      <!-- Dock Status (When NOT in call) -->
-      <div id="voice-dock-placeholder" class="p-3 border-t border-metal-800/80 bg-metal-850/40 flex items-center justify-between text-[11px] font-mono text-zinc-500">
+      <!-- Right Footer Status -->
+      <div class="p-3 border-t border-metal-800/80 bg-metal-850/40 flex items-center justify-between text-[11px] font-mono text-zinc-500">
         <span class="flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> Эфир не активен
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Bauxite Mesh Active
         </span>
-        <button onclick="joinCall()" class="text-bauxite-400 hover:underline font-bold cursor-pointer">
-          Подключить
-        </button>
-      </div>
-
-      <!-- Dock Controls (Active Call Only) -->
-      <div id="voice-controls-dock" class="hidden p-2.5 border-t border-metal-800/80 bg-metal-850/90 flex items-center justify-center gap-1.5">
-        
-        <button id="btn-toggle-mic" onclick="toggleMic()" class="p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-zinc-200 border border-metal-700 transition cursor-pointer" title="Микрофон">
-          <i data-lucide="mic" id="icon-mic" class="w-3.5 h-3.5"></i>
-        </button>
-
-        <button id="btn-toggle-video" onclick="toggleVideo()" class="p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-zinc-200 border border-metal-700 transition cursor-pointer" title="Камера">
-          <i data-lucide="video" id="icon-video" class="w-3.5 h-3.5"></i>
-        </button>
-
-        <button id="btn-share-screen" onclick="shareScreen()" class="p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-bauxite-400 border border-metal-700 transition cursor-pointer" title="Экран">
-          <i data-lucide="screen-share" class="w-3.5 h-3.5"></i>
-        </button>
-
-        <button id="btn-stop-screen" onclick="stopScreenShare()" class="hidden p-2.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Стоп Экран">
-          <i data-lucide="screen-share-off" class="w-3.5 h-3.5"></i>
-        </button>
-
-        <button id="btn-leave-call" onclick="leaveCall()" class="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-md transition cursor-pointer flex items-center gap-1.5 text-xs font-mono font-bold" title="Отключиться">
-          <i data-lucide="phone-off" class="w-3.5 h-3.5"></i>
-          <span>Отключиться</span>
-        </button>
-
+        <span class="text-zinc-600">v1.0-prod</span>
       </div>
 
     </aside>
@@ -554,7 +507,7 @@
         <label class="block text-[10px] font-bold text-zinc-400 uppercase font-mono">Идентификатор канала</label>
         <div class="relative">
           <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-mono text-xs">#</span>
-          <input type="text" id="modal-channel-name" placeholder="dev-ops"
+          <input type="text" id="modal-channel-name" placeholder="voice-main"
             class="w-full bg-metal-950 border border-metal-700 rounded-xl pl-8 pr-4 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-bauxite-500 transition font-mono" />
         </div>
       </div>
@@ -582,6 +535,7 @@ let socket = null;
 let currentChannelId = null;
 let activeCallChannelId = null;
 let channels = [];
+let onlineUsers = [];
 let isRegistering = false;
 let selectedNewChannelType = 'TEXT';
 
@@ -707,9 +661,9 @@ async function showApp() {
   
   const username = currentUser.username || 'septave';
   document.getElementById('display-username').textContent = username;
-  document.getElementById('side-current-user').textContent = username;
   document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
-  document.getElementById('local-avatar-letter').textContent = username.charAt(0).toUpperCase();
+  document.getElementById('center-local-avatar-letter').textContent = username.charAt(0).toUpperCase();
+  document.getElementById('center-local-username').textContent = `${username} (Вы)`;
 
   connectSocket();
   await loadChannels();
@@ -725,7 +679,7 @@ function logout() {
   location.reload();
 }
 
-// ── Channels Handling (Minimalist Industrial List) ─────────────
+// ── Channels Handling ──────────────────────────────────────────
 async function loadChannels() {
   try {
     const res = await fetch(`${API}/api/channels`, {
@@ -753,7 +707,6 @@ function renderChannelsList() {
     const isCurrent = ch.id === currentChannelId;
     const btn = document.createElement('button');
     
-    // Industrial flat indicator design
     btn.className = `w-full text-left pl-3 pr-2.5 py-1.5 rounded-lg text-xs font-mono flex items-center justify-between group transition-all duration-150 cursor-pointer ${
       isCurrent
         ? 'border-l-2 border-bauxite-500 bg-bauxite-500/10 text-zinc-100 font-semibold'
@@ -768,10 +721,7 @@ function renderChannelsList() {
         </div>
         <span class="text-[9px] text-zinc-600 font-mono">VOICE</span>
       `;
-      btn.onclick = () => {
-        selectChannel(ch.id);
-        if (!inCall) joinCall();
-      };
+      btn.onclick = () => selectChannel(ch.id);
       voiceList.appendChild(btn);
     } else {
       btn.innerHTML = `
@@ -789,7 +739,7 @@ function renderChannelsList() {
 }
 
 async function selectChannel(channelId) {
-  if (currentChannelId && socket) {
+  if (currentChannelId && socket && currentChannelId !== channelId) {
     socket.emit('leave-channel', currentChannelId);
   }
 
@@ -797,20 +747,35 @@ async function selectChannel(channelId) {
   if (socket) socket.emit('join-channel', channelId);
 
   const ch = channels.find((c) => c.id === channelId);
-  if (ch) {
-    document.getElementById('chat-channel-name').textContent = `#${ch.name}`;
-    document.getElementById('chat-channel-type').textContent = ch.type;
-    document.getElementById('message-input').placeholder = `Написать в #${ch.name}...`;
-    if (!inCall) {
-      document.getElementById('call-room-name').textContent = `#${ch.name}`;
-    }
-  }
+  if (!ch) return;
 
+  document.getElementById('chat-channel-name').textContent = `${ch.type === 'VOICE' ? '🔊 ' : '#'}${ch.name}`;
+  document.getElementById('chat-channel-type').textContent = ch.type;
+  document.getElementById('header-channel-icon').textContent = ch.type === 'VOICE' ? '🔊' : '#';
   document.getElementById('chat-placeholder').classList.add('hidden');
-  document.getElementById('chat-content').classList.remove('hidden');
 
   renderChannelsList();
-  await loadMessages();
+
+  if (ch.type === 'VOICE') {
+    // ── SWITCH CENTER TO FULL VOICE & VIDEO ARENA ──────────────
+    document.getElementById('chat-channel-desc').textContent = 'Голосовая WebRTC комната прямого эфира';
+    document.getElementById('chat-content').classList.add('hidden');
+    document.getElementById('voice-center-stage').classList.remove('hidden');
+    
+    // Auto-join call if not yet connected to this voice channel
+    if (!inCall || activeCallChannelId !== ch.id) {
+      await joinCall(ch.id);
+    }
+  } else {
+    // ── SWITCH CENTER TO TEXT CHAT STREAM ──────────────────────
+    document.getElementById('chat-channel-desc').textContent = 'Поток текстовых сообщений и файлов';
+    document.getElementById('voice-center-stage').classList.add('hidden');
+    document.getElementById('chat-content').classList.remove('hidden');
+    document.getElementById('message-input').placeholder = `Написать в #${ch.name}...`;
+
+    await loadMessages();
+  }
+  lucide.createIcons();
 }
 
 function openCreateChannelModal(defaultType = 'TEXT') {
@@ -863,35 +828,13 @@ async function submitCreateChannel() {
   } catch (err) {}
 }
 
-async function joinChannel() {
-  if (!currentChannelId) return;
-  await fetch(`${API}/api/channels/${currentChannelId}/join`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  await loadChannels();
-}
-
-function quickJoinVoiceFromChat() {
-  toggleVoicePanel(true);
-  if (inCall) {
-    leaveCall();
-  } else {
-    joinCall();
-  }
-}
-
-function toggleVoicePanel(forceOpen) {
+function toggleVoicePanel() {
   const panel = document.getElementById('voice-stage-panel');
-  if (forceOpen === true) {
-    panel.classList.remove('hidden');
-  } else {
-    panel.classList.toggle('hidden');
-  }
+  panel.classList.toggle('hidden');
 }
 
 // ── Messages & Real-time Chat ──────────────────────────────────
-let lastMessageData = null; // Tracks { userId, timestamp, elementId } for grouping
+let lastMessageData = null;
 
 async function loadMessages() {
   const container = document.getElementById('chat-messages');
@@ -918,7 +861,6 @@ function appendMessage(msg) {
   const isOwn = msgUserId === currentUser?.id;
   const username = msg.user?.username || (isOwn ? currentUser?.username : 'Unknown');
 
-  // Check if this message should be merged into the previous block
   const isConsecutive = lastMessageData && 
     lastMessageData.userId === msgUserId &&
     (msgTime.getTime() - lastMessageData.timestamp) < 5 * 60 * 1000;
@@ -929,7 +871,6 @@ function appendMessage(msg) {
   div.dataset.time = msg.createdAt;
 
   if (isConsecutive) {
-    // ── Compact Continuation Line ──────────────────────────────
     div.className = 'group relative flex items-start gap-3 pl-11 pr-2 py-0.5 rounded-lg hover:bg-metal-900/60 transition-all border border-transparent hover:border-metal-800/60 -mt-0.5';
     div.innerHTML = `
       <div class="flex-1 min-w-0">
@@ -941,7 +882,6 @@ function appendMessage(msg) {
         ${timeFormatted}
       </div>
 
-      <!-- Quick Action Toolbar -->
       <div class="absolute right-2 -top-3 hidden group-hover:flex items-center gap-1 bg-metal-900 border border-metal-700 rounded-lg p-0.5 shadow-xl z-20">
         <button onclick="toggleQuickReaction('${msg.id}', '👍')" class="p-1 hover:bg-metal-800 rounded text-[11px] text-zinc-400 hover:text-amber-400 cursor-pointer">👍</button>
         <button onclick="toggleQuickReaction('${msg.id}', '🔥')" class="p-1 hover:bg-metal-800 rounded text-[11px] text-zinc-400 hover:text-bauxite-400 cursor-pointer">🔥</button>
@@ -956,7 +896,6 @@ function appendMessage(msg) {
       </div>
     `;
   } else {
-    // ── Full Header Block (New Sender / Time Gap) ──────────────
     div.className = 'group relative flex gap-3 p-2 rounded-xl hover:bg-metal-900/60 transition-all border border-transparent hover:border-metal-800/80 mt-3 first:mt-0';
     div.innerHTML = `
       <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-metal-800 to-metal-700 flex items-center justify-center font-bold text-xs text-bauxite-400 font-mono flex-shrink-0 border border-metal-700 shadow-sm">
@@ -979,7 +918,6 @@ function appendMessage(msg) {
         <div class="reactions-bar flex flex-wrap gap-1 mt-1.5 empty:hidden" id="reactions-${msg.id}"></div>
       </div>
 
-      <!-- Quick Action Toolbar -->
       <div class="absolute right-2 -top-2.5 hidden group-hover:flex items-center gap-1 bg-metal-900 border border-metal-700 rounded-lg p-0.5 shadow-xl z-20">
         <button onclick="toggleQuickReaction('${msg.id}', '👍')" class="p-1 hover:bg-metal-800 rounded text-[11px] text-zinc-400 hover:text-amber-400 cursor-pointer">👍</button>
         <button onclick="toggleQuickReaction('${msg.id}', '🔥')" class="p-1 hover:bg-metal-800 rounded text-[11px] text-zinc-400 hover:text-bauxite-400 cursor-pointer">🔥</button>
@@ -1106,12 +1044,81 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// ── Real-Time Online Users Rendering ───────────────────────────
+function renderOnlineUsers(users) {
+  onlineUsers = users || [];
+  const container = document.getElementById('online-users-list');
+  const countBadge = document.getElementById('online-count-badge');
+  if (!container) return;
+
+  countBadge.textContent = `${onlineUsers.length} ONLINE`;
+  container.innerHTML = '';
+
+  onlineUsers.forEach((u) => {
+    const isSelf = u.userId === currentUser?.id;
+    const initial = (u.username || 'U').charAt(0).toUpperCase();
+    const isInVoice = !!u.voiceChannelId;
+    const voiceChannelObj = isInVoice ? channels.find(c => c.id === u.voiceChannelId) : null;
+
+    const div = document.createElement('div');
+    div.className = 'flex items-center justify-between p-2 rounded-xl bg-metal-850/60 border border-metal-800 text-xs font-mono transition hover:bg-metal-850';
+    
+    div.innerHTML = `
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="relative flex-shrink-0">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-metal-800 to-metal-700 flex items-center justify-center font-bold text-xs text-bauxite-400 border border-metal-700">
+            ${initial}
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border-2 border-metal-900"></span>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-zinc-200 truncate">${escapeHtml(u.username)}</span>
+            ${isSelf ? '<span class="text-[8px] px-1 bg-bauxite-500/20 text-bauxite-400 rounded font-bold">YOU</span>' : ''}
+          </div>
+          ${
+            isInVoice
+              ? `<div class="text-[10px] text-emerald-400 flex items-center gap-1 truncate">
+                   <i data-lucide="volume-2" class="w-3 h-3 flex-shrink-0"></i>
+                   <span class="truncate">в #${escapeHtml(voiceChannelObj?.name || 'voice')}</span>
+                 </div>`
+              : '<div class="text-[10px] text-zinc-500">В сети</div>'
+          }
+        </div>
+      </div>
+
+      ${
+        isInVoice
+          ? `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="В голосовом эфире"></span>`
+          : ''
+      }
+    `;
+
+    container.appendChild(div);
+  });
+
+  lucide.createIcons();
+}
+
 // ── Socket.io Engine ───────────────────────────────────────────
 function connectSocket() {
   socket = io(API, { auth: { token } });
 
   socket.on('connect', () => {
     if (currentChannelId) socket.emit('join-channel', currentChannelId);
+  });
+
+  // Real-time online users
+  socket.on('online-users', (users) => {
+    renderOnlineUsers(users);
+  });
+
+  // Real-time channel creation
+  socket.on('channel-created', (newChannel) => {
+    if (!channels.some(c => c.id === newChannel.id)) {
+      channels.push(newChannel);
+      renderChannelsList();
+    }
   });
 
   socket.on('new-message', (msg) => {
@@ -1153,16 +1160,14 @@ function connectSocket() {
     for (const peer of peers) {
       await createPeerConnection(peer.socketId, peer.username, true);
     }
-    updateParticipantsCount();
   });
 
   socket.on('peer-joined', async ({ socketId, username }) => {
-    updateParticipantsCount();
+    console.log(`Peer joined call: ${username} (${socketId})`);
   });
 
   socket.on('peer-left', ({ socketId }) => {
     removePeer(socketId);
-    updateParticipantsCount();
   });
 
   socket.on('offer', async ({ sdp, fromSocketId, username }) => {
@@ -1200,18 +1205,11 @@ async function refreshMessageReactions(messageId) {
 }
 
 // ── WebRTC Mesh Audio/Video Engine ─────────────────────────────
-async function joinCall() {
-  if (!currentChannelId) {
-    if (channels.length > 0) {
-      const voiceCh = channels.find(c => c.type === 'VOICE') || channels[0];
-      await selectChannel(voiceCh.id);
-    } else {
-      alert('Пожалуйста, сначала создайте или выберите канал');
-      return;
-    }
-  }
+async function joinCall(targetChannelId) {
+  const channelToJoin = targetChannelId || currentChannelId;
+  if (!channelToJoin) return;
 
-  activeCallChannelId = currentChannelId;
+  activeCallChannelId = channelToJoin;
 
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -1222,26 +1220,10 @@ async function joinCall() {
 
   inCall = true;
 
-  // Update UI to Active Call State
-  document.getElementById('voice-idle-state').classList.add('hidden');
-  document.getElementById('voice-active-state').classList.remove('hidden');
-  document.getElementById('voice-dock-placeholder').classList.add('hidden');
-  document.getElementById('voice-controls-dock').classList.remove('hidden');
-  document.getElementById('call-status-badge').textContent = 'MESH LIVE';
-  document.getElementById('call-status-badge').className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-  document.getElementById('call-ping-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block animate-ping';
-  document.getElementById('quick-voice-btn-text').textContent = 'Отключить Voice';
-
-  const ch = channels.find(c => c.id === activeCallChannelId);
-  if (ch) {
-    document.getElementById('call-room-name').textContent = `#${ch.name}`;
-  }
-
   if (socket) {
     socket.emit('join-room', activeCallChannelId);
   }
   setupLocalAudioAnalyser();
-  updateParticipantsCount();
   lucide.createIcons();
 }
 
@@ -1250,22 +1232,24 @@ function leaveCall() {
   if (socket && channelToLeave) {
     socket.emit('leave-room', channelToLeave);
   }
-  activeCallChannelId = null;
   cleanupCall();
+
+  // If we were on a voice channel, switch back to the first text channel
+  const textCh = channels.find(c => c.type === 'TEXT');
+  if (textCh) {
+    selectChannel(textCh.id);
+  }
 }
 
 function cleanupCall() {
-  // Stop audio analyser
   if (localAudioContext) {
     try { localAudioContext.close(); } catch(e) {}
     localAudioContext = null;
   }
   localAudioScriptProcessor = null;
 
-  // Clean remote peers
   Object.keys(peerConnections).forEach(removePeer);
 
-  // Stop media tracks
   if (localStream) {
     localStream.getTracks().forEach((t) => t.stop());
     localStream = null;
@@ -1280,31 +1264,21 @@ function cleanupCall() {
   isMicMuted = false;
   activeCallChannelId = null;
 
-  // Reset UI elements to Standby
-  document.getElementById('voice-idle-state').classList.remove('hidden');
-  document.getElementById('voice-active-state').classList.add('hidden');
-  document.getElementById('voice-controls-dock').classList.add('hidden');
-  document.getElementById('voice-dock-placeholder').classList.remove('hidden');
-  document.getElementById('local-video').classList.add('hidden');
-  document.getElementById('local-avatar-box').classList.remove('hidden');
-  document.getElementById('call-status-badge').textContent = 'STANDBY';
-  document.getElementById('call-status-badge').className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-metal-850 text-zinc-400 border border-metal-700';
-  document.getElementById('call-ping-dot').className = 'w-2 h-2 rounded-full bg-zinc-500 inline-block';
-  document.getElementById('quick-voice-btn-text').textContent = 'Подключить Voice';
+  document.getElementById('center-local-video').classList.add('hidden');
+  document.getElementById('center-local-avatar').classList.remove('hidden');
 
-  document.getElementById('btn-share-screen').classList.remove('hidden');
-  document.getElementById('btn-stop-screen').classList.add('hidden');
+  document.getElementById('center-btn-share-screen').classList.remove('hidden');
+  document.getElementById('center-btn-stop-screen').classList.add('hidden');
 
-  // Reset buttons appearance
-  const micBtn = document.getElementById('btn-toggle-mic');
+  const micBtn = document.getElementById('center-btn-mic');
   if (micBtn) {
-    micBtn.className = 'p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-zinc-200 border border-metal-700 transition cursor-pointer';
-    micBtn.innerHTML = '<i data-lucide="mic" class="w-3.5 h-3.5"></i>';
+    micBtn.className = 'p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer';
+    micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
   }
 
-  const vidBtn = document.getElementById('btn-toggle-video');
+  const vidBtn = document.getElementById('center-btn-video');
   if (vidBtn) {
-    vidBtn.className = 'p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-zinc-200 border border-metal-700 transition cursor-pointer';
+    vidBtn.className = 'p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer';
   }
 
   lucide.createIcons();
@@ -1318,16 +1292,16 @@ function toggleMic() {
   isMicMuted = !isMicMuted;
   audioTracks.forEach((t) => (t.enabled = !isMicMuted));
 
-  const micBtn = document.getElementById('btn-toggle-mic');
-  const micIcon = document.getElementById('local-mic-icon');
+  const micBtn = document.getElementById('center-btn-mic');
+  const micIcon = document.getElementById('center-local-mic-icon');
 
   if (isMicMuted) {
-    micBtn.className = 'p-2.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/40 transition cursor-pointer';
-    micBtn.innerHTML = '<i data-lucide="mic-off" class="w-3.5 h-3.5"></i>';
+    micBtn.className = 'p-3.5 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40 transition cursor-pointer';
+    micBtn.innerHTML = '<i data-lucide="mic-off" class="w-5 h-5"></i>';
     if (micIcon) micIcon.classList.replace('text-emerald-400', 'text-rose-400');
   } else {
-    micBtn.className = 'p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-zinc-200 border border-metal-700 transition cursor-pointer';
-    micBtn.innerHTML = '<i data-lucide="mic" class="w-3.5 h-3.5"></i>';
+    micBtn.className = 'p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer';
+    micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
     if (micIcon) micIcon.classList.replace('text-rose-400', 'text-emerald-400');
   }
   lucide.createIcons();
@@ -1343,8 +1317,8 @@ async function toggleVideo() {
       localStream.removeTrack(t);
     });
 
-    document.getElementById('local-video').classList.add('hidden');
-    document.getElementById('local-avatar-box').classList.remove('hidden');
+    document.getElementById('center-local-video').classList.add('hidden');
+    document.getElementById('center-local-avatar').classList.remove('hidden');
 
     Object.values(peerConnections).forEach(({ pc }) => {
       pc.getSenders().forEach((s) => {
@@ -1353,7 +1327,7 @@ async function toggleVideo() {
     });
 
     isVideoEnabled = false;
-    document.getElementById('btn-toggle-video').className = 'p-2.5 rounded-lg bg-metal-800 hover:bg-metal-700 text-zinc-200 border border-metal-700 transition cursor-pointer';
+    document.getElementById('center-btn-video').className = 'p-3.5 rounded-xl bg-metal-850 hover:bg-metal-750 text-zinc-200 border border-metal-700 transition cursor-pointer';
   } else {
     try {
       const camStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -1361,17 +1335,17 @@ async function toggleVideo() {
       if (!localStream) localStream = new MediaStream();
       localStream.addTrack(videoTrack);
 
-      const localVid = document.getElementById('local-video');
+      const localVid = document.getElementById('center-local-video');
       localVid.srcObject = localStream;
       localVid.classList.remove('hidden');
-      document.getElementById('local-avatar-box').classList.add('hidden');
+      document.getElementById('center-local-avatar').classList.add('hidden');
 
       Object.values(peerConnections).forEach(({ pc }) => {
         pc.addTrack(videoTrack, localStream);
       });
 
       isVideoEnabled = true;
-      document.getElementById('btn-toggle-video').className = 'p-2.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition cursor-pointer';
+      document.getElementById('center-btn-video').className = 'p-3.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition cursor-pointer';
     } catch (err) {}
   }
   lucide.createIcons();
@@ -1382,10 +1356,10 @@ async function shareScreen() {
     screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
     const videoTrack = screenStream.getVideoTracks()[0];
 
-    const localVid = document.getElementById('local-video');
+    const localVid = document.getElementById('center-local-video');
     localVid.srcObject = screenStream;
     localVid.classList.remove('hidden');
-    document.getElementById('local-avatar-box').classList.add('hidden');
+    document.getElementById('center-local-avatar').classList.add('hidden');
 
     Object.values(peerConnections).forEach(({ pc }) => {
       const videoSender = pc.getSenders().find((s) => s.track?.kind === 'video');
@@ -1396,8 +1370,8 @@ async function shareScreen() {
       }
     });
 
-    document.getElementById('btn-share-screen').classList.add('hidden');
-    document.getElementById('btn-stop-screen').classList.remove('hidden');
+    document.getElementById('center-btn-share-screen').classList.add('hidden');
+    document.getElementById('center-btn-stop-screen').classList.remove('hidden');
 
     videoTrack.onended = () => stopScreenShare();
   } catch (err) {}
@@ -1410,14 +1384,14 @@ function stopScreenShare() {
     screenStream = null;
   }
 
-  document.getElementById('btn-share-screen').classList.remove('hidden');
-  document.getElementById('btn-stop-screen').classList.add('hidden');
+  document.getElementById('center-btn-share-screen').classList.remove('hidden');
+  document.getElementById('center-btn-stop-screen').classList.add('hidden');
 
   if (isVideoEnabled && localStream?.getVideoTracks().length > 0) {
-    document.getElementById('local-video').srcObject = localStream;
+    document.getElementById('center-local-video').srcObject = localStream;
   } else {
-    document.getElementById('local-video').classList.add('hidden');
-    document.getElementById('local-avatar-box').classList.remove('hidden');
+    document.getElementById('center-local-video').classList.add('hidden');
+    document.getElementById('center-local-avatar').classList.remove('hidden');
   }
   lucide.createIcons();
 }
@@ -1448,25 +1422,25 @@ async function createPeerConnection(remoteSocketId, username, createOffer) {
   };
 
   pc.ontrack = (e) => {
-    let card = document.getElementById(`peer-${remoteSocketId}`);
+    let card = document.getElementById(`center-peer-${remoteSocketId}`);
     if (!card) {
       card = document.createElement('div');
-      card.id = `peer-${remoteSocketId}`;
-      card.className = 'relative bg-metal-850 border border-metal-700 rounded-xl overflow-hidden flex flex-col items-center justify-center p-3 transition min-h-[140px]';
+      card.id = `center-peer-${remoteSocketId}`;
+      card.className = 'relative bg-metal-900 border-2 border-metal-700/80 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 transition-all duration-200 shadow-lg min-h-[200px]';
 
       card.innerHTML = `
-        <video autoplay playsinline class="hidden absolute inset-0 w-full h-full object-cover rounded-xl"></video>
+        <video autoplay playsinline class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl"></video>
         
-        <div class="peer-avatar w-12 h-12 rounded-xl bg-gradient-to-tr from-metal-800 to-metal-700 flex items-center justify-center text-lg font-bold text-bauxite-400 shadow-md font-mono border border-metal-700">
-          ${username.charAt(0).toUpperCase()}
+        <div class="peer-avatar w-20 h-20 rounded-2xl bg-gradient-to-tr from-metal-800 to-metal-700 flex items-center justify-center text-3xl font-bold text-bauxite-400 font-mono border border-metal-700 shadow-md">
+          ${(username || 'U').charAt(0).toUpperCase()}
         </div>
 
-        <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2 py-0.5 rounded-md bg-metal-950/80 backdrop-blur-md text-[10px] font-mono border border-metal-800">
-          <span class="text-zinc-300 truncate">${escapeHtml(username)}</span>
-          <i data-lucide="mic" class="w-3 h-3 text-emerald-400"></i>
+        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded-xl bg-metal-950/85 backdrop-blur-md text-xs font-mono border border-metal-800">
+          <span class="text-zinc-200 font-bold truncate">${escapeHtml(username)}</span>
+          <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400"></i>
         </div>
       `;
-      document.getElementById('peers-container').appendChild(card);
+      document.getElementById('center-peers-grid').appendChild(card);
       lucide.createIcons();
     }
 
@@ -1500,15 +1474,8 @@ function removePeer(socketId) {
     peer.pc.close();
     delete peerConnections[socketId];
   }
-  const el = document.getElementById(`peer-${socketId}`);
+  const el = document.getElementById(`center-peer-${socketId}`);
   if (el) el.remove();
-  updateParticipantsCount();
-}
-
-function updateParticipantsCount() {
-  const count = 1 + Object.keys(peerConnections).length;
-  const badge = document.getElementById('call-participants-count');
-  if (badge) badge.textContent = `${count} ${count === 1 ? 'пир' : 'пира'}`;
 }
 
 function setupLocalAudioAnalyser() {
@@ -1537,12 +1504,15 @@ function setupLocalAudioAnalyser() {
       for (let i = 0; i < array.length; i++) values += array[i];
       const average = values / array.length;
 
-      const avatarBox = document.getElementById('local-avatar-box');
-      if (avatarBox) {
+      const avatarBox = document.getElementById('center-local-avatar');
+      const cardBox = document.getElementById('center-local-peer-card');
+      if (avatarBox && cardBox) {
         if (average > 18) {
-          avatarBox.classList.add('ring-2', 'ring-emerald-400', 'shadow-speaking-glow');
+          avatarBox.classList.add('ring-4', 'ring-emerald-400', 'shadow-speaking-glow');
+          cardBox.classList.add('border-emerald-500');
         } else {
-          avatarBox.classList.remove('ring-2', 'ring-emerald-400', 'shadow-speaking-glow');
+          avatarBox.classList.remove('ring-4', 'ring-emerald-400', 'shadow-speaking-glow');
+          cardBox.classList.remove('border-emerald-500');
         }
       }
     };

@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { config } from "../config";
 import { JwtPayload } from "../middleware/auth";
+import { activeSockets, broadcastOnlineUsers } from "../index";
 
 interface AuthSocket extends Socket {
   data: {
@@ -33,6 +34,13 @@ export function registerWebRTCHandlers(io: Server, socket: AuthSocket): void {
     const room = callRooms.get(roomKey)!;
     room.add(socket.id);
     socket.join(roomKey);
+
+    // Update voice status
+    const session = activeSockets.get(socket.id);
+    if (session) {
+      session.voiceChannelId = channelId;
+      broadcastOnlineUsers();
+    }
 
     // Notify all OTHER participants that a new peer joined
     socket.to(roomKey).emit("peer-joined", {
@@ -128,6 +136,12 @@ function leaveCallRoom(io: Server, socket: AuthSocket, channelId: string): void 
   }
 
   socket.leave(roomKey);
+
+  const session = activeSockets.get(socket.id);
+  if (session && session.voiceChannelId === channelId) {
+    session.voiceChannelId = null;
+    broadcastOnlineUsers();
+  }
 
   io.to(roomKey).emit("peer-left", {
     socketId: socket.id,

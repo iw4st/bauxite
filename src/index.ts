@@ -53,7 +53,7 @@ app.use(
 // Serve test client
 app.use(express.static(path.join(__dirname, "..", "public")));
 
-// ── Health check (required by Koyeb) ───────────────────────────
+// ── Health check (required by Koyeb/Render) ─────────────────────
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
@@ -64,7 +64,7 @@ app.use("/api/channels", channelRoutes);
 app.use("/api", messageRoutes);
 
 // ── Socket.io ──────────────────────────────────────────────────
-const io = new SocketIOServer(server, {
+export const io = new SocketIOServer(server, {
   cors: {
     origin: (origin, cb) => {
       if (isOriginAllowed(origin)) return cb(null, true);
@@ -75,6 +75,27 @@ const io = new SocketIOServer(server, {
   pingInterval: 25000,
   pingTimeout: 20000,
 });
+
+// Attach io to express app
+app.set("io", io);
+
+// Online users tracking
+export interface UserSession {
+  userId: string;
+  username: string;
+  avatarUrl?: string | null;
+  voiceChannelId?: string | null;
+}
+
+export const activeSockets = new Map<string, UserSession>();
+
+export function broadcastOnlineUsers(): void {
+  const usersMap = new Map<string, UserSession>();
+  for (const session of activeSockets.values()) {
+    usersMap.set(session.userId, session);
+  }
+  io.emit("online-users", Array.from(usersMap.values()));
+}
 
 // Socket.io authentication middleware
 io.use((socket, next) => {
@@ -93,30 +114,40 @@ io.use((socket, next) => {
 
 // Socket.io connection handler
 io.on("connection", (socket) => {
-  console.log(
-    `✔ Socket connected: ${socket.id} (user: ${socket.data.user.username})`
-  );
+  const user = socket.data.user;
+  console.log(`✔ Socket connected: ${socket.id} (user: ${user.username})`);
+
+  activeSockets.set(socket.id, {
+    userId: user.userId,
+    username: user.username,
+    voiceChannelId: null,
+  });
 
   // Register all event handlers
   registerChatHandlers(io, socket as any);
   registerWebRTCHandlers(io, socket as any);
 
-  // Update online status
+  // Broadcast updated online users
+  broadcastOnlineUsers();
+
+  // Update online status in DB
   prisma.user
-    .update({ where: { id: socket.data.user.userId }, data: { online: true } })
+    .update({ where: { id: user.userId }, data: { online: true } })
     .catch(() => {});
 
   socket.on("disconnect", () => {
     console.log(`✘ Socket disconnected: ${socket.id}`);
+    activeSockets.delete(socket.id);
+    broadcastOnlineUsers();
+
     prisma.user
-      .update({ where: { id: socket.data.user.userId }, data: { online: false } })
+      .update({ where: { id: user.userId }, data: { online: false } })
       .catch(() => {});
   });
 });
 
 // ── Start ──────────────────────────────────────────────────────
 async function main(): Promise<void> {
-  // Verify DB connection
   await prisma.$connect();
   console.log("✔ Database connected");
 

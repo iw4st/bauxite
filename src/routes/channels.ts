@@ -8,18 +8,17 @@ const router = Router();
 router.use(authMiddleware);
 
 // ── GET /api/channels ──────────────────────────────────────────
-// Returns channels the authenticated user is a member of.
-router.get("/", async (req: AuthenticatedRequest, res: Response) => {
+// Returns all channels in the workspace.
+router.get("/", async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const channels = await prisma.channel.findMany({
-      where: { members: { some: { userId: req.user!.userId } } },
       include: {
         members: {
           include: { user: { select: { id: true, username: true, avatarUrl: true } } },
         },
         _count: { select: { messages: true } },
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { createdAt: "asc" },
     });
 
     res.json({ channels });
@@ -56,6 +55,11 @@ router.post("/", async (req: AuthenticatedRequest, res: Response) => {
         },
       },
     });
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("channel-created", channel);
+    }
 
     res.status(201).json({ channel });
   } catch (err) {
