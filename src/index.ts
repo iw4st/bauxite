@@ -20,17 +20,30 @@ const server = http.createServer(app);
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// CORS helper
+function isOriginAllowed(origin: string | undefined): boolean {
+  if (!origin) return true;
+  if (config.corsOrigins.includes("*")) return true;
+  if (config.corsOrigins.includes(origin)) return true;
+  if (
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("http://127.0.0.1") ||
+    origin.includes("onrender.com") ||
+    origin.includes("koyeb.app") ||
+    origin.includes("vercel.app") ||
+    origin.includes("netlify.app") ||
+    origin.includes("pages.dev")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 // CORS
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow requests with no origin (curl, Postman, server-to-server)
-      if (!origin) return cb(null, true);
-      if (config.corsOrigins.includes(origin)) return cb(null, true);
-      // In development, allow all localhost origins
-      if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
-        return cb(null, true);
-      }
+      if (isOriginAllowed(origin)) return cb(null, true);
       cb(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
@@ -54,11 +67,7 @@ app.use("/api", messageRoutes);
 const io = new SocketIOServer(server, {
   cors: {
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      if (config.corsOrigins.includes(origin)) return cb(null, true);
-      if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
-        return cb(null, true);
-      }
+      if (isOriginAllowed(origin)) return cb(null, true);
       cb(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,

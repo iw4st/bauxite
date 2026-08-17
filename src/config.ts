@@ -37,7 +37,7 @@ function parseIceServers(): IceServer[] {
 export const config = {
   port: parseInt(optional("PORT", "4000"), 10),
   jwtSecret: required("JWT_SECRET"),
-  corsOrigins: optional("CORS_ORIGIN", "http://localhost:3000")
+  corsOrigins: optional("CORS_ORIGIN", "*")
     .split(",")
     .map((s) => s.trim()),
   iceServers: parseIceServers(),
